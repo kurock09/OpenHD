@@ -7,6 +7,7 @@
 
 #include <gst/app/gstappsink.h>
 #include <gst/gst.h>
+//#include "gst/rtp/rtp.h"
 
 #include "openhd_spdlog.h"
 
@@ -25,6 +26,29 @@ static std::shared_ptr<std::vector<uint8_t>> gst_copy_buffer(GstBuffer* buffer){
   return ret;
 }
 
+/*static void gst_debug_rtp_buffer(GstRTPBuffer* buffer){
+  std::stringstream ss;
+  ss<<"seq_nr:"<<gst_rtp_buffer_get_seq(buffer)<<"\n";
+  ss<<"marker:"<<gst_rtp_buffer_get_marker(buffer)<<"\n";
+  openhd::log::get_default()->debug("{}",ss.str());
+}
+
+// NOTE: The given buffer must be of type rtp !
+// additionally extracts the information if this is the last fragment of a fragmentation unit via gstreamer
+static bool gst_rtp_buffer_is_last_fragment(GstBuffer* buffer){
+  assert(buffer);
+  bool is_last_fragment_in_fu= false;
+  GstRTPBuffer rtp_buffer=GST_RTP_BUFFER_INIT;
+  if (gst_rtp_buffer_map(buffer, GST_MAP_READ, &rtp_buffer)) {
+    //openhd::log::get_default()->debug("Mapped gst rtp buffer");
+    const gboolean marker = gst_rtp_buffer_get_marker(&rtp_buffer);
+    is_last_fragment_in_fu=marker;
+    gst_debug_rtp_buffer(&rtp_buffer);
+    gst_rtp_buffer_unmap(&rtp_buffer);
+  }
+  return is_last_fragment_in_fu;
+}*/
+
 static void gst_debug_buffer(GstBuffer* buffer){
   assert(buffer);
   const auto now=std::chrono::steady_clock::now().time_since_epoch().count();
@@ -33,6 +57,7 @@ static void gst_debug_buffer(GstBuffer* buffer){
       buffer->offset,buffer->offset_end,buffer->duration,
       buffer->pts,buffer->dts,now);
 }
+
 
 // From https://github.com/mshabunin/gstreamer-example/blob/master/main.cpp
 void gst_debug_sample(GstSample* sample){
@@ -78,7 +103,7 @@ void gst_debug_sample(GstSample* sample){
  * @param out_cb fragments are forwarded via this cb
  */
 static void loop_pull_appsink_samples(bool& keep_looping,GstElement *app_sink_element,
-                                      const std::function<void(std::shared_ptr<std::vector<uint8_t>> fragment,uint64_t dts)>& out_cb){
+                                      const std::function<void(std::shared_ptr<std::vector<uint8_t>> fragment,uint64_t dts,bool is_last_fragment_in_fu)>& out_cb){
   assert(app_sink_element);
   assert(out_cb);
   const uint64_t timeout_ns=std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::milliseconds(100)).count();
@@ -92,9 +117,11 @@ static void loop_pull_appsink_samples(bool& keep_looping,GstElement *app_sink_el
       GstBuffer* buffer = gst_sample_get_buffer(sample);
       if (buffer) {
         //openhd::gst_debug_buffer(buffer);
+        //auto buff_copy=openhd::gst_copy_buffer(buffer);
         auto buff_copy=openhd::gst_copy_buffer(buffer);
-        //openhd::log::get_default()->debug("Got buffer size {}", buff_copy->size());
-        out_cb(buff_copy,buffer->dts);
+        //bool is_last_fragment_in_fu=openhd::gst_rtp_buffer_is_last_fragment(buffer);
+        bool is_last_fragment_in_fu= false;
+        out_cb(buff_copy,buffer->dts,is_last_fragment_in_fu);
       }
       gst_sample_unref(sample);
     }

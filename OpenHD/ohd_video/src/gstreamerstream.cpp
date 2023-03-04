@@ -488,7 +488,7 @@ void GStreamerStream::on_new_rtp_fragmented_frame(std::vector<std::shared_ptr<st
   }
 }
 
-void GStreamerStream::on_new_rtp_frame_fragment(std::shared_ptr<std::vector<uint8_t>> fragment,uint64_t dts) {
+void GStreamerStream::on_new_rtp_frame_fragment(std::shared_ptr<std::vector<uint8_t>> fragment,uint64_t dts,bool is_last_fragment_in_fu) {
   m_frame_fragments.push_back(fragment);
   const auto curr_video_codec=m_camera_holder->get_settings().streamed_video_format.videoCodec;
   bool is_last_fragment_of_frame=false;
@@ -509,7 +509,12 @@ void GStreamerStream::on_new_rtp_frame_fragment(std::shared_ptr<std::vector<uint
     m_console->debug("No end of frame found after 1000 fragments");
     is_last_fragment_of_frame= true;
   }
+  //if(is_last_fragment_of_frame != is_last_fragment_in_fu){
+  //  m_console->warn("Mismatch with {} {} {}",is_last_fragment_of_frame,is_last_fragment_in_fu,m_frame_fragments.size());
+  //}
+  //assert(is_last_fragment_of_frame==is_last_fragment_in_fu);
   if(is_last_fragment_of_frame){
+    //openhd::log::get_default()->debug("is_last_fragment_of_frame {}",m_frame_fragments.size());
     on_new_rtp_fragmented_frame(m_frame_fragments);
     m_frame_fragments.resize(0);
   }
@@ -517,8 +522,8 @@ void GStreamerStream::on_new_rtp_frame_fragment(std::shared_ptr<std::vector<uint
 
 void GStreamerStream::loop_pull_samples() {
   assert(m_app_sink_element);
-  auto cb=[this](std::shared_ptr<std::vector<uint8_t>> fragment,uint64_t dts){
-    on_new_rtp_frame_fragment(fragment,dts);
+  auto cb=[this](std::shared_ptr<std::vector<uint8_t>> fragment,uint64_t dts,bool is_last_fragment_in_fu){
+    on_new_rtp_frame_fragment(fragment,dts,is_last_fragment_in_fu);
   };
   openhd::loop_pull_appsink_samples(m_pull_samples_run,m_app_sink_element,cb);
   m_frame_fragments.resize(0);

@@ -86,7 +86,7 @@ class GStreamerStream : public CameraStream {
   std::atomic<int> m_curr_dynamic_bitrate_kbits =-1;
  private:
   // The stuff here is to pull the data out of the gstreamer pipeline, such that we can forward it to the WB link
-  void on_new_rtp_frame_fragment(std::shared_ptr<std::vector<uint8_t>> fragment,uint64_t dts);
+  void on_new_rtp_frame_fragment(std::shared_ptr<std::vector<uint8_t>> fragment,uint64_t dts,bool is_last_fragment_in_fu);
   std::vector<std::shared_ptr<std::vector<uint8_t>>> m_frame_fragments;
   void on_new_rtp_fragmented_frame(std::vector<std::shared_ptr<std::vector<uint8_t>>> frame_fragments);
   // pull samples (fragments) out of the gstreamer pipeline

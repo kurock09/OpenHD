@@ -45,6 +45,8 @@ target_link_libraries(OHDVideoLib PRIVATE
         PkgConfig::gstreamer-sdp
         PkgConfig::gstreamer-app
         PkgConfig::gstreamer-video)
+#pkg_check_modules(GST_RTP REQUIRED gstreamer-rtp-1.0)
+#target_link_libraries(OHDVideoLib PRIVATE ${GST_RTP_LIBRARIES})
 ## xx
 # FUCKING GSTREAMER !! end
 # We get fmt from speedlog
