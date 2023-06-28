@@ -490,8 +490,8 @@ static std::string createRockchipHDMIStream(
 ) {
   std::stringstream ss;
   ss<<createRockchipV4L2Pipeline(0, videoFormat.framerate);
-  if(recording) ss<<createRockchipRecordingPipeline(recordingFormat.width, recordingFormat.height, {recordingFormat.videoCodec, bitrateBitsPerSecond, keyframe_interval,50});
-  ss<<createRockchipEncoderPipeline(videoFormat.width, videoFormat.height, {videoFormat.videoCodec, bitrateBitsPerSecond, keyframe_interval,50});
+  if(recording) ss<<createRockchipRecordingPipeline(recordingFormat.width, recordingFormat.height, {recordingFormat.videoCodec, kbits_to_bits_per_second, keyframe_interval,50});
+  ss<<createRockchipEncoderPipeline(videoFormat.width, videoFormat.height, {videoFormat.videoCodec, kbits_to_bits_per_second, keyframe_interval,50});
   return ss.str();
 }
 
