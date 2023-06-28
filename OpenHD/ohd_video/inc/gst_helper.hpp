@@ -457,11 +457,11 @@ static std::string createRockchipRecordingPipeline(const int width, const int he
   const int bps = kbits_to_bits_per_second(encoder_params.h26X_bitrate_kbits);
   ss<<"tee name=o ! ";
   if(encoder_params.videoCodec==VideoCodec::H264){
-    ss<<"mpph264enc rc-mode=cbr bps="<<bps;
+    ss<<"mpph264enc rc-mode=vbr bps="<<bps;
     ss<<" width="<<width;
     ss<<" height="<<height;
   }else if(encoder_params.videoCodec==VideoCodec::H265){
-    ss<<"mpph265enc rc-mode=cbr bps="<<bps;
+    ss<<"mpph265enc rc-mode=vbr bps="<<bps;
     ss<<" width="<<width;
     ss<<" height="<<height;
   }else{
