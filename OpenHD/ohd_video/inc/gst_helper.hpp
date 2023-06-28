@@ -438,7 +438,7 @@ static std::string createRockchipEncoderPipeline(const int width, const int heig
     ss<<" height="<<height;
     ss<<" gop="<<encoder_params.h26X_keyframe_interval<<" ! ";
   }else if(encoder_params.videoCodec==VideoCodec::H265){
-    ss<<"mpph264enc rc-mode=cbr bps="<<bps;
+    ss<<"mpph265enc rc-mode=cbr bps="<<bps;
     ss<<" width="<<width;
     ss<<" height="<<height;
     ss<<" gop="<<encoder_params.h26X_keyframe_interval<<" ! ";
@@ -490,8 +490,8 @@ static std::string createRockchipHDMIStream(
 ) {
   std::stringstream ss;
   ss<<createRockchipV4L2Pipeline(0, videoFormat.framerate);
-  if(recording) ss<<createRockchipRecordingPipeline(recordingFormat.width, recordingFormat.height, {recordingFormat.videoCodec, kbits_to_bits_per_second, keyframe_interval,50});
-  ss<<createRockchipEncoderPipeline(videoFormat.width, videoFormat.height, {videoFormat.videoCodec, kbits_to_bits_per_second, keyframe_interval,50});
+  if(recording) ss<<createRockchipRecordingPipeline(recordingFormat.width, recordingFormat.height, {recordingFormat.videoCodec, bitrateKBits, keyframe_interval,50});
+  ss<<createRockchipEncoderPipeline(videoFormat.width, videoFormat.height, {videoFormat.videoCodec, bitrateKBits, keyframe_interval,50});
   return ss.str();
 }
 
