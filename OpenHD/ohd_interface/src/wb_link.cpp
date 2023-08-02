@@ -202,6 +202,7 @@ TOptions WBLink::create_tx_options(uint8_t radio_port,bool is_video)const {
     m_console->debug("Using key from file {}",options.keypair->c_str());
   }else{
     options.keypair = std::nullopt;
+    m_console->debug("ebanarot2");
   }
   //options.log_time_spent_in_atomic_queue= true;
   if(is_video){
@@ -232,6 +233,7 @@ ROptions WBLink::create_rx_options(uint8_t radio_port)const {
     m_console->debug("Using key from file {}",options.keypair->c_str());
   }else{
     options.keypair = std::nullopt;
+    m_console->debug("ebanarot3");
   }
   const auto cards = openhd::wb::get_card_names(m_broadcast_cards);
   assert(!cards.empty());
